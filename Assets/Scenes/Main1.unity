@@ -662,9 +662,9 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.21999979, z: -10}
+  m_LocalPosition: {x: -4.91, y: 0.41, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -680,7 +680,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4fe9d4da1c3c54785b762985b6b1c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
-  Target: {fileID: 1476964873}
+  traget: {fileID: 1476964876}
 --- !u!1 &863010256
 GameObject:
   m_ObjectHideFlags: 0
@@ -903,8 +903,8 @@ Transform:
   m_GameObject: {fileID: 1185054767}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.19, y: -8.81, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 45.1, y: -15.77, z: 0}
+  m_LocalScale: {x: 300, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1040,7 +1040,7 @@ Transform:
   m_GameObject: {fileID: 1231450479}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.12, y: -2.77, z: 0}
+  m_LocalPosition: {x: -0.18, y: -2.77, z: 0}
   m_LocalScale: {x: 23, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1060,9 +1060,10 @@ GameObject:
   - component: {fileID: 1476964879}
   - component: {fileID: 1476964878}
   - component: {fileID: 1476964877}
+  - component: {fileID: 1476964880}
   m_Layer: 0
   m_Name: Idle_0
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1175,7 +1176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovePlus
   speed: 5
-  jump: 400
+  jump: 300
   isFacingRight: 1
   anim: {fileID: 1476964874}
   dashForce: 15
@@ -1206,7 +1207,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &1476964879
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1253,6 +1254,18 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.56, y: 2.15}
   m_EdgeRadius: 0
+--- !u!114 &1476964880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476964873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fbfcff45c3c1544f8e7dcf2abb7233d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &1530369406
 GameObject:
   m_ObjectHideFlags: 0
