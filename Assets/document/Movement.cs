@@ -1,79 +1,92 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerMove : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float jumpForce = 12f;
-    [SerializeField] private float dashForce = 15f;
-    [SerializeField] private float dashTime = 0.2f;
-    [SerializeField] private float groundCheckRadius = 0.2f;
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private int maxJumps = 2;
+private Rigidbody2D rb;
+private float Move;
+public float speed;
+public float jump;
+public bool isFacingRight;
+    public Animator anim;
+public float dashForce = 15f;
+public float dashTime = 0.2f;
+private bool isDashing;
+private float dashTimeLeft;
 
-    private Rigidbody2D rb;
-    private bool isGrounded;
-    private int jumpCount;
-    private bool isDashing;
-    private float dashTimeLeft;
+// Start is called before the first frame update
+void Start()
+{
+isFacingRight = true;
+rb = GetComponent<Rigidbody2D>();
+}
 
-    void Start()
+// Update is called once per frame
+void Update()
+{
+Move = Input.GetAxisRaw("Horizontal");
+rb.linearVelocity = new Vector2(Move * speed, rb.linearVelocity.y);
+
+if (Input.GetButtonDown("Fire1") && !isDashing)
+{
+    isDashing = true;
+    dashTimeLeft = dashTime;
+    float direction = isFacingRight ? 1f : -1f;
+    rb.linearVelocity = new Vector2(direction * dashForce, rb.linearVelocity.y);
+}
+if (isDashing)
+{
+    dashTimeLeft -= Time.deltaTime;
+    if (dashTimeLeft <= 0)
     {
-        rb = GetComponent<Rigidbody2D>();
+        isDashing = false;
     }
+}
 
-    void Update()
-    {
-        GroundCheck();
-        Move();
-        Jump();
-        Dash();
-    }
-
-    void GroundCheck()
-    {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        if (isGrounded) jumpCount = 0; // återställ hopp när man landar
-    }
-
-    void Move()
-    {
-        if (isDashing) return;
-
-        float moveInput = Input.GetAxisRaw("Horizontal");
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
-
-        if (moveInput != 0)
-            transform.localScale = new Vector3(Mathf.Sign(moveInput), 1f, 1f);
-    }
-
-    void Jump()
-    {
-        if (isDashing) return;
-
-        if (Input.GetButtonDown("Jump") && jumpCount < maxJumps)
+        if (Input.GetButtonDown("Jump"))
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            jumpCount++;
-        }
-    }
-
-    void Dash()
-    {
-        if (Input.GetButtonDown("Fire1") && !isDashing)
-        {
-            isDashing = true;
-            dashTimeLeft = dashTime;
-
-            float direction = transform.localScale.x;
-            rb.linearVelocity = new Vector2(direction * dashForce, 0f);
+            rb.AddForce(new Vector2(rb.linearVelocity.x, jump));
         }
 
-        if (isDashing)
-        {
-            dashTimeLeft -= Time.deltaTime;
-            if (dashTimeLeft <= 0)
-                isDashing = false;
-        }
-    }
+if (Move >= 0.1f || Move <= -0.1f)
+{
+anim.SetBool("isRuning", true);
+}
+else
+{
+anim.SetBool("isRuning", false);
+}
+
+if (!isFacingRight && Move > 0f)
+{
+Flip();
+}
+else if (isFacingRight && Move < 0f)
+{
+Flip();
+}
+}
+
+private void OnCollisionEnter2D(Collision2D other)
+{
+if (other.gameObject.CompareTag("Ground"))
+{
+anim.SetBool("isJumping", false);
+}
+}
+
+private void OnCollisionExit2D(Collision2D other)
+{
+if (other.gameObject.CompareTag("Ground"))
+{
+anim.SetBool("isJumping", true);
+}
+}
+
+private void Flip()
+{
+isFacingRight = !isFacingRight;
+Vector3 localScale = transform.localScale;
+localScale.x *= -1f;
+transform.localScale = localScale;
+}
 }
