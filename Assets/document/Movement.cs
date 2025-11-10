@@ -6,13 +6,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 12f;
     [SerializeField] private float dashForce = 15f;
     [SerializeField] private float dashTime = 0.2f;
-    [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
+    [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private int maxJumps = 2;
 
     private Rigidbody2D rb;
     private bool isGrounded;
-    private bool canDoubleJump;
+    private int jumpCount;
     private bool isDashing;
     private float dashTimeLeft;
 
@@ -24,18 +25,18 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         GroundCheck();
-        HandleMovement();
-        HandleJump();
-        HandleDash();
+        Move();
+        Jump();
+        Dash();
     }
 
     void GroundCheck()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        if (isGrounded) canDoubleJump = true;
+        if (isGrounded) jumpCount = 0; // återställ hopp när man landar
     }
 
-    void HandleMovement()
+    void Move()
     {
         if (isDashing) return;
 
@@ -46,25 +47,18 @@ public class PlayerController : MonoBehaviour
             transform.localScale = new Vector3(Mathf.Sign(moveInput), 1f, 1f);
     }
 
-    void HandleJump()
+    void Jump()
     {
         if (isDashing) return;
 
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && jumpCount < maxJumps)
         {
-            if (isGrounded)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            }
-            else if (canDoubleJump)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-                canDoubleJump = false;
-            }
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            jumpCount++;
         }
     }
 
-    void HandleDash()
+    void Dash()
     {
         if (Input.GetButtonDown("Fire1") && !isDashing)
         {
@@ -79,9 +73,7 @@ public class PlayerController : MonoBehaviour
         {
             dashTimeLeft -= Time.deltaTime;
             if (dashTimeLeft <= 0)
-            {
                 isDashing = false;
-            }
         }
     }
 }
