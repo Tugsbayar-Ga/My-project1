@@ -2,91 +2,92 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
-private Rigidbody2D rb;
-private float Move;
-public float speed;
-public float jump;
-public bool isFacingRight;
+    private Rigidbody2D rb;
+    private float move;
+    public float speed = 5f;
+    public float jumpForce = 10f;
+    private bool isFacingRight = true;
     public Animator anim;
-public float dashForce = 15f;
-public float dashTime = 0.2f;
-private bool isDashing;
-private float dashTimeLeft;
 
-// Start is called before the first frame update
-void Start()
-{
-isFacingRight = true;
-rb = GetComponent<Rigidbody2D>();
-}
+    // Dash
+    public float dashForce = 15f;
+    public float dashTime = 0.2f;
+    private bool isDashing;
+    private float dashTimeLeft;
+    private float timeSinceDash = 1f;
 
-// Update is called once per frame
-void Update()
-{
-Move = Input.GetAxisRaw("Horizontal");
-rb.linearVelocity = new Vector2(Move * speed, rb.linearVelocity.y);
+    // Jump
+    public Transform groundChecker;
+    public LayerMask groundLayer;
+    public int jumpNumMax = 2;
+    private int jumpNum;
+    private float timeSinceJump = 0f;
+    public float timeBetweenJump = 0.25f;
 
-if (Input.GetButtonDown("Fire1") && !isDashing)
-{
-    isDashing = true;
-    dashTimeLeft = dashTime;
-    float direction = isFacingRight ? 1f : -1f;
-    rb.linearVelocity = new Vector2(direction * dashForce, rb.linearVelocity.y);
-}
-if (isDashing)
-{
-    dashTimeLeft -= Time.deltaTime;
-    if (dashTimeLeft <= 0)
+    void Start()
     {
-        isDashing = false;
+        rb = GetComponent<Rigidbody2D>();
+        jumpNum = jumpNumMax;
     }
-}
 
-        if (Input.GetButtonDown("Jump"))
+    void Update()
+    {
+        timeSinceJump += Time.deltaTime;
+        timeSinceDash += Time.deltaTime;
+
+        move = Input.GetAxisRaw("Horizontal");
+
+        bool isGrounded = Physics2D.OverlapCircle(groundChecker.position, 0.3f, groundLayer);
+        if (isGrounded)
         {
-            rb.AddForce(new Vector2(rb.linearVelocity.x, jump));
+            jumpNum = jumpNumMax;
         }
 
-if (Move >= 0.1f || Move <= -0.1f)
-{
-anim.SetBool("isRuning", true);
-}
-else
-{
-anim.SetBool("isRuning", false);
-}
+        // Rörelse (om inte dashar)
+        if (!isDashing)
+            rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
 
-if (!isFacingRight && Move > 0f)
-{
-Flip();
-}
-else if (isFacingRight && Move < 0f)
-{
-Flip();
-}
-}
+        // Hop
+        if (Input.GetAxisRaw("Jump") > 0 && timeSinceJump >= timeBetweenJump && jumpNum > 0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            timeSinceJump = 0f;
+            jumpNum--;
+        }
 
-private void OnCollisionEnter2D(Collision2D other)
-{
-if (other.gameObject.CompareTag("Ground"))
-{
-anim.SetBool("isJumping", false);
-}
-}
+        // Dash
+        if (Input.GetButtonDown("Fire1") && !isDashing)
+        {
+            isDashing = true;
+            dashTimeLeft = dashTime;
+            float direction = isFacingRight ? 1f : -1f;
+            rb.linearVelocity = new Vector2(direction * dashForce, rb.linearVelocity.y);
+            timeSinceDash = 0f;
+        }
 
-private void OnCollisionExit2D(Collision2D other)
-{
-if (other.gameObject.CompareTag("Ground"))
-{
-anim.SetBool("isJumping", true);
-}
-}
+        if (isDashing)
+        {
+            dashTimeLeft -= Time.deltaTime;
+            if (dashTimeLeft <= 0)
+                isDashing = false;
+        }
 
-private void Flip()
-{
-isFacingRight = !isFacingRight;
-Vector3 localScale = transform.localScale;
-localScale.x *= -1f;
-transform.localScale = localScale;
-}
+        // Animation
+        anim.SetBool("isRuning", Mathf.Abs(move) > 0.1f);
+        anim.SetBool("isJumping", !isGrounded);
+        
+        if (!isFacingRight && move > 0f)
+            Flip();
+        else if (isFacingRight && move < 0f)
+            Flip();
+    }
+
+    private void Flip()
+    {
+        isFacingRight = !isFacingRight;
+        Vector3 localScale = transform.localScale;
+        localScale.x *= -1f;
+        transform.localScale = localScale;
+    }
 }
